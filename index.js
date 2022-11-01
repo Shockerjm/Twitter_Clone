@@ -1,7 +1,5 @@
 import { tweetsData, setTweetsData } from './data.js'
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
-const parseFeedObj = JSON.parse(localStorage.getItem("savedTweets"))
-console.log(parseFeedObj)
 
 document.addEventListener('click', function(e){
     if(e.target.dataset.like){
@@ -15,6 +13,9 @@ document.addEventListener('click', function(e){
     }
     else if(e.target.dataset.newreply){
         handleNewReplyClick(e.target.dataset.newreply)
+    }
+    else if(e.target.dataset.trash){
+        handleTrashClick(e.target.dataset.trash)
     }
     else if(e.target.id === 'tweet-btn'){
         handleTweetBtnClick()
@@ -62,6 +63,15 @@ function handleReplyClick(replyId){
     document.getElementById(`replies-${replyId}`).classList.toggle('hidden')
 }
 
+function handleTrashClick(trashTweet){
+    const targetTweetObj = tweetsData.findIndex((tweet) => {
+        return tweet.uuid === trashTweet
+    })
+    tweetsData.splice(targetTweetObj,1)
+    setLocalStorage()
+    render()
+}
+
 function handleTweetBtnClick(){
     const tweetInput = document.getElementById('tweet-input')
 
@@ -102,11 +112,7 @@ function handleReplyBtnClick(replyBtn) {
 
 function getFeedHtml(){
     let feedHtml = ''
-    
-    if(parseFeedObj != null) {
-       setTweetsData(parseFeedObj)
-    }
-    
+        
     tweetsData.forEach(function(tweet){
         
         let likeIconClass = ''
@@ -138,7 +144,6 @@ function getFeedHtml(){
 `
             })
         }
-        
           
         feedHtml += `
 <div class="tweet">
@@ -171,6 +176,13 @@ function getFeedHtml(){
                     ></i>
                     ${tweet.retweets}
                 </span>
+                ${tweet.handle === '@Scrimba' ? 
+                `<span class="tweet-detail">
+                    <i class="fa-solid fa-trash-can"
+                    data-trash="${tweet.uuid}"
+                    ></i>
+                </span>` 
+                : ''}
             </div>
         </div>           
     </div>
@@ -187,10 +199,23 @@ function getFeedHtml(){
 </div>
 `
    })
-   const jsonFeedObj = JSON.stringify(tweetsData)
-   localStorage.setItem("savedTweets", jsonFeedObj)
+   setLocalStorage()
    return feedHtml 
 }
+
+function setLocalStorage() {
+    const jsonFeedObj = localStorage.setItem("savedTweets", JSON.stringify(tweetsData))
+}
+
+function getLocalStorage(){
+    const parseFeedObj = JSON.parse(localStorage.getItem("savedTweets"))
+    
+    if(parseFeedObj != null) {
+        setTweetsData(parseFeedObj)    
+    }
+}
+
+getLocalStorage()
 
 function render(){
     document.getElementById('feed').innerHTML = getFeedHtml()
