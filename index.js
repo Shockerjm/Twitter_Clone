@@ -1,6 +1,6 @@
-import { tweetsData } from './data.js'
+import { tweetsData, setTweetsData } from './data.js'
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
-const parseFeedObj = JSON.parse(localStorage.getItem("tweetsData"))
+const parseFeedObj = JSON.parse(localStorage.getItem("savedTweets"))
 console.log(parseFeedObj)
 
 document.addEventListener('click', function(e){
@@ -101,7 +101,11 @@ function handleReplyBtnClick(replyBtn) {
 }
 
 function getFeedHtml(){
-    let feedHtml = ``
+    let feedHtml = ''
+    
+    if(parseFeedObj != null) {
+       setTweetsData(parseFeedObj)
+    }
     
     tweetsData.forEach(function(tweet){
         
@@ -184,7 +188,7 @@ function getFeedHtml(){
 `
    })
    const jsonFeedObj = JSON.stringify(tweetsData)
-   localStorage.setItem("tweetsData", jsonFeedObj)
+   localStorage.setItem("savedTweets", jsonFeedObj)
    return feedHtml 
 }
 
